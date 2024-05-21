@@ -5,7 +5,7 @@ const { verifyToken } = require('../middleware/authMiddleware')
 
 // Protected route
 router.get('/matches', verifyToken, async (req, res) => {
-  if (req.userRole === "referee") {
+  if (req.userRole === "observator") {
     const rows = await fetchAllMatches();
     res.send(rows)
   } else {

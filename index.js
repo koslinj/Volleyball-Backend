@@ -4,12 +4,14 @@ const cors = require('cors')
 
 const authRoute = require('./routes/auth')
 const refereeRoute = require('./routes/referee')
+const observatorRoute = require('./routes/observator')
 
 app.use(cors());
 app.use(express.json())
 
 app.use('/auth', authRoute)
 app.use('/referee', refereeRoute)
+app.use('/observator', observatorRoute)
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
