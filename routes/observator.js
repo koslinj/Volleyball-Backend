@@ -1,12 +1,22 @@
 const express = require('express');
 const router = express.Router();
-const { fetchAllMatches } = require('../functions/matches');
+const { fetchAllMatches, fetchMatchesByStatus } = require('../functions/matches');
 const { verifyToken } = require('../middleware/authMiddleware')
 
 // Protected route
 router.get('/matches', verifyToken, async (req, res) => {
   if (req.userRole === "observator") {
     const rows = await fetchAllMatches();
+    res.send(rows)
+  } else {
+    res.status(403).json({ message: 'Forbidden' });
+  }
+});
+
+// Protected route
+router.get('/matches/:status', verifyToken, async (req, res) => {
+  if (req.userRole === "observator") {
+    const rows = await fetchMatchesByStatus(req.params.status);
     res.send(rows)
   } else {
     res.status(403).json({ message: 'Forbidden' });
