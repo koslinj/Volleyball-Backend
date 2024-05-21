@@ -36,4 +36,22 @@ const fetchMatchesByStatus = async (status) => {
   }
 };
 
-module.exports = { fetchAllMatches, fetchMatchesByStatus }
+const fetchMatchDetailsById = async (id) => {
+  try {
+    const res = await client.query(
+    `SELECT m.match_date, t1.name as name_a, t2.name as name_b, m.result, m.result_detailed, m.timeline, m.status
+    FROM matches as m
+    JOIN teams AS t1
+    ON m.teama_id = t1.id
+    JOIN teams AS t2
+    ON m.teamb_id = t2.id
+    WHERE m.id = $1`, 
+    [id]);
+    return res.rows;
+  } catch (error) {
+    console.error('Error fetching matches:', error);
+    return null;
+  }
+};
+
+module.exports = { fetchAllMatches, fetchMatchesByStatus, fetchMatchDetailsById }
