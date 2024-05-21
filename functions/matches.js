@@ -8,7 +8,8 @@ const fetchAllMatches = async () => {
     JOIN teams AS t1
     ON m.teama_id = t1.id
     JOIN teams AS t2
-    ON m.teamb_id = t2.id`);
+    ON m.teamb_id = t2.id
+    ORDER BY m.match_date DESC`);
     return res.rows;
   } catch (error) {
     console.error('Error fetching matches:', error);
