@@ -4,7 +4,7 @@ const { fetchAllMatches, fetchMatchesByStatus } = require('../functions/matches'
 const { verifyToken } = require('../middleware/authMiddleware')
 
 // Protected route
-router.get('/matches', verifyToken, async (req, res) => {
+router.get('/matches/all', verifyToken, async (req, res) => {
   if (req.userRole === "observator") {
     const rows = await fetchAllMatches();
     res.send(rows)
@@ -14,7 +14,7 @@ router.get('/matches', verifyToken, async (req, res) => {
 });
 
 // Protected route
-router.get('/matches/:status', verifyToken, async (req, res) => {
+router.get('/matches/all/:status', verifyToken, async (req, res) => {
   if (req.userRole === "observator") {
     const rows = await fetchMatchesByStatus(req.params.status);
     res.send(rows)
