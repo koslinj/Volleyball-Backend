@@ -14,12 +14,12 @@ const createTeam = async (body) => {
   try {
     const playersJSON = { players: body.players }
     const res = await client.query(`
-      INSERT INTO teams (name, players) VALUES ($1, $2)`,
+      INSERT INTO teams (name, players) VALUES ($1, $2) RETURNING *`,
       [body.name, playersJSON]);
-    return true;
+    return res.rows[0];
   } catch (error) {
     console.error('Error fetching matches:', error);
-    return false;
+    return null;
   }
 };
 
@@ -35,7 +35,7 @@ const editTeam = async (body, id) => {
     return res.rows[0];
   } catch (error) {
     console.error('Error fetching matches:', error);
-    return false;
+    return null;
   }
 };
 
