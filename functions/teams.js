@@ -39,8 +39,22 @@ const editTeam = async (body, id) => {
   }
 };
 
+const deleteTeam = async (id) => {
+  try {
+    const res = await client.query(
+      `DELETE FROM teams WHERE id = $1`,
+      [id]
+    );
+    return res.rowCount > 0 ? true : false;
+  } catch (error) {
+    console.error('Error deleting teams:', error);
+    return false;
+  }
+}
+
 module.exports = {
   fetchAllTeams,
   createTeam,
-  editTeam
+  editTeam,
+  deleteTeam
 }
