@@ -60,7 +60,7 @@ const deleteMatch = async (id) => {
       `DELETE FROM matches as m WHERE m.id = $1`,
       [id]
     );
-    return true;
+    return res.rowCount > 0 ? true : false;
   } catch (error) {
     console.error('Error fetching matches:', error);
     return false;
