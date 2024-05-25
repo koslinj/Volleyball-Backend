@@ -18,7 +18,7 @@ router.get('/matches', verifyToken, async (req, res) => {
 router.delete('/matches/:id', verifyToken, async (req, res) => {
   if (req.userRole === "referee") {
     const success = await deleteMatch(req.params.id);
-    if (!success) res.status(404).json({ message: 'There was a problem while deleting!' });
+    if (!success) return res.status(404).json({ message: 'There was a problem while deleting!' });
     res.status(200).json({ message: 'Deleted successfully!' });
   } else {
     res.status(403).json({ message: 'Forbidden' });
