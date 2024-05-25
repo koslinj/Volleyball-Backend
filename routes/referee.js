@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { fetchAllMatches, deleteMatch } = require('../functions/matches');
-const { fetchAllTeams, createTeam } = require('../functions/teams');
+const { fetchAllTeams, createTeam, editTeam } = require('../functions/teams');
 const { verifyToken } = require('../middleware/authMiddleware')
 
 // Protected route
@@ -41,6 +41,16 @@ router.post('/teams', verifyToken, async (req, res) => {
     const success = await createTeam(req.body);
     if (!success) res.status(404).json({ message: 'There was a problem while creating!' });
     res.status(200).json({ message: 'Created successfully!' });
+  } else {
+    res.status(403).json({ message: 'Forbidden' });
+  }
+});
+
+// Protected route
+router.post('/teams/:id', verifyToken, async (req, res) => {
+  if (req.userRole === "referee") {
+    const row = await editTeam(req.body, req.params.id);
+    res.send(row)
   } else {
     res.status(403).json({ message: 'Forbidden' });
   }
