@@ -26,7 +26,7 @@ router.delete('/matches/:id', verifyToken, async (req, res) => {
 });
 
 // Protected route
-router.get('/teams/all', verifyToken, async (req, res) => {
+router.get('/teams', verifyToken, async (req, res) => {
   if (req.userRole === "referee") {
     const rows = await fetchAllTeams();
     res.send(rows)
