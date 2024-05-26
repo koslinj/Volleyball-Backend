@@ -3,6 +3,7 @@ const router = express.Router();
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const { client } = require('../db');
+const { verifyToken } = require('../middleware/authMiddleware')
 
 // User login
 router.post('/login', async (req, res) => {
@@ -21,6 +22,20 @@ router.post('/login', async (req, res) => {
     // Generate JWT token
     const token = jwt.sign({ userId: user.id }, 'secret', { expiresIn: '1h' });
     res.status(200).json({ token: token });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'DB error' });
+  }
+});
+
+// Fetch user data based on token
+router.get('/user', verifyToken, async (req, res) => {
+  const userId = req.userId;
+  try {
+    const result = await client.query('SELECT id, login, role FROM users WHERE id = $1', [userId]);
+    const user = result.rows[0];
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    res.send(user)
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'DB error' });
