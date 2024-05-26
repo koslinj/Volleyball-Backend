@@ -10,12 +10,12 @@ const fetchAllTeams = async () => {
   }
 };
 
-const createTeam = async (body) => {
+const createTeam = async (name, players) => {
   try {
-    const playersJSON = { players: body.players }
+    const playersJSON = { players: players }
     const res = await client.query(`
       INSERT INTO teams (name, players) VALUES ($1, $2) RETURNING *`,
-      [body.name, playersJSON]);
+      [name, playersJSON]);
     return res.rows[0];
   } catch (error) {
     console.error('Error fetching matches:', error);
@@ -23,15 +23,15 @@ const createTeam = async (body) => {
   }
 };
 
-const editTeam = async (body, id) => {
+const editTeam = async (name, players, id) => {
   try {
-    const playersJSON = { players: body.players }
+    const playersJSON = { players: players }
     const res = await client.query(`
       UPDATE teams
       SET name = $1, players = $2
       WHERE id = $3
       RETURNING *`,
-      [body.name, playersJSON, id]);
+      [name, playersJSON, id]);
     return res.rows[0];
   } catch (error) {
     console.error('Error fetching matches:', error);

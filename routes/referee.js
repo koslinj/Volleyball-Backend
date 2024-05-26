@@ -17,7 +17,8 @@ router.get('/matches', verifyToken, async (req, res) => {
 // Protected route
 router.post('/matches', verifyToken, async (req, res) => {
   if (req.userRole === "referee") {
-    const row = await createMatch(req.body);
+    const { date, teama_id, teamb_id } = req.body
+    const row = await createMatch(date, teama_id, teamb_id);
     res.send(row)
   } else {
     res.status(403).json({ message: 'Forbidden' });
@@ -48,7 +49,8 @@ router.get('/teams', verifyToken, async (req, res) => {
 // Protected route
 router.post('/teams', verifyToken, async (req, res) => {
   if (req.userRole === "referee") {
-    const row = await createTeam(req.body);
+    const { name, players } = req.body
+    const row = await createTeam(name, players);
     res.send(row)
   } else {
     res.status(403).json({ message: 'Forbidden' });
@@ -58,7 +60,8 @@ router.post('/teams', verifyToken, async (req, res) => {
 // Protected route
 router.post('/teams/:id', verifyToken, async (req, res) => {
   if (req.userRole === "referee") {
-    const row = await editTeam(req.body, req.params.id);
+    const { name, players } = req.body
+    const row = await editTeam(name, players, req.params.id);
     res.send(row)
   } else {
     res.status(403).json({ message: 'Forbidden' });

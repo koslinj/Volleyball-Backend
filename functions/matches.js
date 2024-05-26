@@ -68,9 +68,8 @@ const deleteMatch = async (id) => {
   }
 }
 
-const createMatch = async (body) => {
+const createMatch = async (date, teama_id, teamb_id) => {
   try {
-    const {date, teama_id, teamb_id} = body
     const formattedDate = date ? date : moment().format('YYYY-MM-DD HH:mm:ss')
     const status = date ? 'PLANNED' : 'IN_PROGRESS'
     const res = await client.query(`
