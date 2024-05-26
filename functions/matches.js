@@ -1,3 +1,4 @@
+const moment = require('moment');
 const { client } = require('../db');
 
 const fetchAllMatches = async () => {
@@ -67,9 +68,28 @@ const deleteMatch = async (id) => {
   }
 }
 
+const createMatch = async (body) => {
+  try {
+    const {date, teama_id, teamb_id} = body
+    const formattedDate = date ? date : moment().format('YYYY-MM-DD HH:mm:ss')
+    const status = date ? 'PLANNED' : 'IN_PROGRESS'
+    const res = await client.query(`
+    INSERT INTO matches 
+    (match_date, teamA_id, teamB_id, result, result_detailed, timeline, status) 
+    VALUES 
+    ($1, $2, $3, '0:0', '{"resD": [], "timeout": []}', '{"timeline": []}', $4) RETURNING *`,
+      [formattedDate, teama_id, teamb_id, status]);
+    return res.rows[0];
+  } catch (error) {
+    console.error('Error fetching matches:', error);
+    return null;
+  }
+};
+
 module.exports = {
   fetchAllMatches,
   fetchMatchesByStatus,
   fetchMatchDetailsById,
-  deleteMatch
+  deleteMatch,
+  createMatch
 }

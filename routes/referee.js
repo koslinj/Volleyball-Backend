@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { fetchAllMatches, deleteMatch } = require('../functions/matches');
+const { fetchAllMatches, deleteMatch, createMatch } = require('../functions/matches');
 const { fetchAllTeams, createTeam, editTeam, deleteTeam } = require('../functions/teams');
 const { verifyToken } = require('../middleware/authMiddleware')
 
@@ -9,6 +9,16 @@ router.get('/matches', verifyToken, async (req, res) => {
   if (req.userRole === "referee") {
     const rows = await fetchAllMatches();
     res.send(rows)
+  } else {
+    res.status(403).json({ message: 'Forbidden' });
+  }
+});
+
+// Protected route
+router.post('/matches', verifyToken, async (req, res) => {
+  if (req.userRole === "referee") {
+    const row = await createMatch(req.body);
+    res.send(row)
   } else {
     res.status(403).json({ message: 'Forbidden' });
   }
