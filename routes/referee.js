@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { fetchAllMatches, deleteMatch, createMatch } = require('../functions/matches');
 const { fetchAllTeams, createTeam, editTeam, deleteTeam } = require('../functions/teams');
+const { getConfiguration, updateConfiguration } = require('../functions/configuration');
 const { verifyToken } = require('../middleware/authMiddleware')
 
 // Protected route
@@ -74,6 +75,27 @@ router.delete('/teams/:id', verifyToken, async (req, res) => {
     const success = await deleteTeam(req.params.id);
     if (!success) return res.status(404).json({ message: 'There was a problem while deleting!' });
     res.status(200).json({ message: 'Deleted successfully!' });
+  } else {
+    res.status(403).json({ message: 'Forbidden' });
+  }
+});
+
+// Protected route
+router.get('/configuration', verifyToken, async (req, res) => {
+  if (req.userRole === "referee") {
+    const row = await getConfiguration()
+    res.send(row)
+  } else {
+    res.status(403).json({ message: 'Forbidden' });
+  }
+});
+
+// Protected route
+router.post('/configuration', verifyToken, async (req, res) => {
+  if (req.userRole === "referee") {
+    const { sets_to_win, points_to_win_set, is_tie_break, points_to_win_tie_break } = req.body;
+    const row = await updateConfiguration(sets_to_win, points_to_win_set, is_tie_break, points_to_win_tie_break)
+    res.send(row)
   } else {
     res.status(403).json({ message: 'Forbidden' });
   }
