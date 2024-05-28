@@ -3,7 +3,7 @@ const router = express.Router();
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const { client } = require('../db');
-const { verifyToken } = require('../middleware/authMiddleware')
+const { verifyTokenMiddleware } = require('../middleware/authMiddleware')
 
 // User login
 router.post('/login', async (req, res) => {
@@ -29,7 +29,7 @@ router.post('/login', async (req, res) => {
 });
 
 // Fetch user data based on token
-router.get('/user', verifyToken, async (req, res) => {
+router.get('/user', verifyTokenMiddleware, async (req, res) => {
   const userId = req.userId;
   try {
     const result = await client.query('SELECT id, login, role FROM users WHERE id = $1', [userId]);

@@ -1,9 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const { fetchAllTeams, createTeam, editTeam, deleteTeam } = require('../../functions/teams');
-const { verifyToken } = require('../../middleware/authMiddleware')
+const { verifyTokenMiddleware } = require('../../middleware/authMiddleware')
 
-router.get('/', verifyToken, async (req, res) => {
+router.get('/', verifyTokenMiddleware, async (req, res) => {
   if (req.userRole === "referee") {
     const rows = await fetchAllTeams();
     res.send(rows)
@@ -12,7 +12,7 @@ router.get('/', verifyToken, async (req, res) => {
   }
 });
 
-router.post('/', verifyToken, async (req, res) => {
+router.post('/', verifyTokenMiddleware, async (req, res) => {
   if (req.userRole === "referee") {
     const { name, players } = req.body
     const row = await createTeam(name, players);
@@ -22,7 +22,7 @@ router.post('/', verifyToken, async (req, res) => {
   }
 });
 
-router.post('/:id', verifyToken, async (req, res) => {
+router.post('/:id', verifyTokenMiddleware, async (req, res) => {
   if (req.userRole === "referee") {
     const { name, players } = req.body
     const row = await editTeam(name, players, req.params.id);
@@ -32,7 +32,7 @@ router.post('/:id', verifyToken, async (req, res) => {
   }
 });
 
-router.delete('/:id', verifyToken, async (req, res) => {
+router.delete('/:id', verifyTokenMiddleware, async (req, res) => {
   if (req.userRole === "referee") {
     const success = await deleteTeam(req.params.id);
     if (!success) return res.status(404).json({ message: 'There was a problem while deleting!' });

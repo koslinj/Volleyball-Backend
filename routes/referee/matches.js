@@ -1,9 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const { fetchAllMatches, deleteMatch, createMatch } = require('../../functions/matches');
-const { verifyToken } = require('../../middleware/authMiddleware')
+const { verifyTokenMiddleware } = require('../../middleware/authMiddleware')
 
-router.get('/', verifyToken, async (req, res) => {
+router.get('/', verifyTokenMiddleware, async (req, res) => {
   if (req.userRole === "referee") {
     const rows = await fetchAllMatches();
     res.send(rows)
@@ -12,7 +12,7 @@ router.get('/', verifyToken, async (req, res) => {
   }
 });
 
-router.post('/', verifyToken, async (req, res) => {
+router.post('/', verifyTokenMiddleware, async (req, res) => {
   if (req.userRole === "referee") {
     const { date, teama_id, teamb_id } = req.body
     const row = await createMatch(date, teama_id, teamb_id);
@@ -22,7 +22,7 @@ router.post('/', verifyToken, async (req, res) => {
   }
 });
 
-router.delete('/:id', verifyToken, async (req, res) => {
+router.delete('/:id', verifyTokenMiddleware, async (req, res) => {
   if (req.userRole === "referee") {
     const success = await deleteMatch(req.params.id);
     if (!success) return res.status(404).json({ message: 'There was a problem while deleting!' });
