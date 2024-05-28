@@ -3,14 +3,18 @@ const app = express()
 const cors = require('cors')
 
 const authRoute = require('./routes/auth')
-const refereeRoute = require('./routes/referee')
+const refereeConfigurationRoute = require('./routes/referee/configuration')
+const refereeMatchesRoute = require('./routes/referee/matches')
+const refereeTeamsRoute = require('./routes/referee/teams')
 const observatorRoute = require('./routes/observator')
 
 app.use(cors());
 app.use(express.json())
 
 app.use('/auth', authRoute)
-app.use('/referee', refereeRoute)
+app.use('/referee/configuration', refereeConfigurationRoute)
+app.use('/referee/matches', refereeMatchesRoute)
+app.use('/referee/teams', refereeTeamsRoute)
 app.use('/observator', observatorRoute)
 
 const PORT = process.env.PORT || 3000;
