@@ -1,5 +1,6 @@
 const { WebSocketServer } = require('ws');
 const { verifyToken } = require('../middleware/authMiddleware');
+const { fetchMatchDetailsById } = require('../functions/matches')
 const { client } = require('../db');
 
 let wss;
