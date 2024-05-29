@@ -17,8 +17,8 @@ router.get('/matches/all/:status', verifyTokenMiddleware, async (req, res) => {
 
 // Protected route
 router.get('/matches/:id', verifyTokenMiddleware, async (req, res) => {
-  const rows = await fetchMatchDetailsById(req.params.id);
-  res.send(rows)
+  const row = await fetchMatchDetailsById(req.params.id);
+  res.send(row)
 });
 
 module.exports = router;
