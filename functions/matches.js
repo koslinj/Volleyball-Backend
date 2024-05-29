@@ -40,7 +40,7 @@ const fetchMatchesByStatus = async (status) => {
 const fetchMatchDetailsById = async (id) => {
   try {
     const res = await client.query(
-      `SELECT m.match_date, t1.name as name_a, t2.name as name_b, m.result, m.result_detailed, m.timeline, m.status
+      `SELECT m.match_date, m.teama_id, m.teamb_id, t1.name as name_a, t2.name as name_b, m.result, m.result_detailed, m.timeline, m.status
     FROM matches as m
     JOIN teams AS t1
     ON m.teama_id = t1.id
