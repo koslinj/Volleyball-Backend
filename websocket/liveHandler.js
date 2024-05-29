@@ -15,7 +15,8 @@ const liveHandler = (server) => {
       const data = JSON.parse(message);
       const match = await fetchMatchDetailsById(data.match_id);
       const arr = match.result_detailed.resD
-      const last = arr[arr.length - 1]
+      let last = arr[arr.length - 1]
+      if(!last) last = "0:0"
       const setEnded = await isSetEnded(last.split(':').map(Number))
       ws.send(JSON.stringify({ ...match, setEnded }))
     });
