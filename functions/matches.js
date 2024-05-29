@@ -48,7 +48,7 @@ const fetchMatchDetailsById = async (id) => {
     ON m.teamb_id = t2.id
     WHERE m.id = $1`,
       [id]);
-    return res.rows;
+    return res.rows[0];
   } catch (error) {
     console.error('Error fetching matches:', error);
     return null;
