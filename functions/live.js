@@ -11,6 +11,17 @@ function addPointToResD(scores, team_id, teama_id, teamb_id) {
   return scores
 }
 
+function subtractPointFromResD(scores, team_id, teama_id, teamb_id) {
+  if (team_id === teama_id) {
+    scores[0]--
+    if(scores[0] < 0) scores[0] = 0
+  } else if (team_id === teamb_id) {
+    scores[1]--
+    if(scores[1] < 0) scores[1] = 0
+  }
+  return scores
+}
+
 async function isSetEnded(scores) {
   const config = await getConfiguration()
   const max = config.points_to_win_set
@@ -20,7 +31,17 @@ async function isSetEnded(scores) {
   return false
 }
 
-async function updatePoints(resD, team_id, teama_id, teamb_id) {
+async function subtractPoints(resD, team_id, teama_id, teamb_id) {
+  let lastScore = resD[resD.length - 1];
+  let scores = lastScore.split(':').map(Number);
+  scores = subtractPointFromResD(scores, team_id, teama_id, teamb_id)
+
+  resD[resD.length - 1] = scores.join(':')
+  let setEnded = await isSetEnded(scores)
+  return { resD, setEnded };
+}
+
+async function addPoints(resD, team_id, teama_id, teamb_id) {
   let lastScore = resD[resD.length - 1];
   let scores = lastScore.split(':').map(Number);
   let setEnded = await isSetEnded(scores)
@@ -54,13 +75,19 @@ async function updatePoints(resD, team_id, teama_id, teamb_id) {
 //   return { res, resD };
 // }
 
-const addPoint = async (match_id, team_id) => {
+const addOrSubtractPoint = async (match_id, team_id, choice) => {
   try {
     const match_raw = await client.query(`SELECT * FROM matches WHERE id = $1`, [match_id])
     const match = match_raw.rows[0]
     let actual_resD = match.result_detailed.resD
 
-    const updated = await updatePoints(actual_resD, team_id, match.teama_id, match.teamb_id);
+    let updated
+    if (choice === 'add') {
+      updated = await addPoints(actual_resD, team_id, match.teama_id, match.teamb_id);
+    } else if (choice === 'subtract') {
+      updated = await subtractPoints(actual_resD, team_id, match.teama_id, match.teamb_id);
+    }
+
     match.result_detailed.resD = updated.resD
     const res = await client.query(`
     UPDATE matches 
@@ -103,6 +130,6 @@ const addPoint = async (match_id, team_id) => {
 // };
 
 module.exports = {
-  addPoint,
+  addOrSubtractPoint,
   isSetEnded
 }
