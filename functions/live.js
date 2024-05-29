@@ -14,10 +14,10 @@ function addPointToResD(scores, team_id, teama_id, teamb_id) {
 function subtractPointFromResD(scores, team_id, teama_id, teamb_id) {
   if (team_id === teama_id) {
     scores[0]--
-    if(scores[0] < 0) scores[0] = 0
+    if (scores[0] < 0) scores[0] = 0
   } else if (team_id === teamb_id) {
     scores[1]--
-    if(scores[1] < 0) scores[1] = 0
+    if (scores[1] < 0) scores[1] = 0
   }
   return scores
 }
@@ -84,6 +84,12 @@ const addOrSubtractPoint = async (match_id, team_id, choice) => {
     let updated
     if (choice === 'add') {
       updated = await addPoints(actual_resD, team_id, match.teama_id, match.teamb_id);
+      if (updated.resD[0] === "1:0" || updated.resD[0] === "0:1") {
+        await client.query(
+          `UPDATE matches SET status='IN_PROGRESS' WHERE id = $1`,
+          [match_id]
+        );
+      }
     } else if (choice === 'subtract') {
       updated = await subtractPoints(actual_resD, team_id, match.teama_id, match.teamb_id);
     }
