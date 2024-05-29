@@ -11,8 +11,7 @@ const liveHandler = (server) => {
 
     ws.on('message', async (message) => {
       const data = JSON.parse(message);
-      const match_raw = await client.query(`SELECT * FROM matches WHERE id = $1`, [data.match_id])
-      const match = match_raw.rows[0]
+      const match = await fetchMatchDetailsById(data.match_id);
       ws.send(JSON.stringify(match))
     });
 
