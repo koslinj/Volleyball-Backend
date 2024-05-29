@@ -1,6 +1,7 @@
 const { WebSocketServer } = require('ws');
 const { verifyToken } = require('../middleware/authMiddleware');
 const { fetchMatchDetailsById } = require('../functions/matches')
+const { isSetEnded } = require('../functions/live')
 const { client } = require('../db');
 
 let wss;
@@ -13,7 +14,10 @@ const liveHandler = (server) => {
     ws.on('message', async (message) => {
       const data = JSON.parse(message);
       const match = await fetchMatchDetailsById(data.match_id);
-      ws.send(JSON.stringify(match))
+      const arr = match.result_detailed.resD
+      const last = arr[arr.length - 1]
+      const setEnded = await isSetEnded(last.split(':').map(Number))
+      ws.send(JSON.stringify({ ...match, setEnded }))
     });
 
     ws.on('close', () => {

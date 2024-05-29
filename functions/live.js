@@ -103,5 +103,6 @@ const addPoint = async (match_id, team_id) => {
 // };
 
 module.exports = {
-  addPoint
+  addPoint,
+  isSetEnded
 }
