@@ -53,36 +53,35 @@ async function addPoints(resD, team_id, teama_id, teamb_id) {
   return { resD, setEnded };
 }
 
-// function updateSets(res, resD, team_id, teama_id, teamb_id) {
-//   let lastScore = resD[resD.length - 1];
-//   let scores = lastScore.split(':').map(Number);
-//   scores = addPointToResD(scores, team_id, teama_id, teamb_id)
-//   resD[resD.length - 1] = scores.join(':')
-//   if (isSetEnded(scores)) {
-//     resD.push("0:0");
-//     let res_nums = res.split(':').map(Number);
-//     if (res_nums[0] === 3 || res_nums[1] === 3) {
-//       //MATCH ENDED
-//     }
-//     if (team_id === teama_id) {
-//       res_nums[0]++
-//     } else if (team_id === teamb_id) {
-//       res_nums[1]++;
-//     }
-//     res = res_nums.join(':')
-//   }
+function changeGeneralResult(scores, res) {
+  let x = res.split(':').map(Number);
+  if (scores[0] > scores[1]) {
+    x[0]++
+  } else {
+    x[1]++
+  }
+  return x.join(':')
+}
 
-//   return { res, resD };
-// }
+function updateSets(res, detailed, timeline_outer) {
+  let lastScore = detailed.resD[detailed.resD.length - 1];
+  let scores = lastScore.split(':').map(Number);
+  res = changeGeneralResult(scores, res)
+  detailed.resD.push("0:0")
+  detailed.timeout.push("0:0")
+  timeline_outer.timeline.push([])
+
+  return { res, detailed, timeline_outer };
+}
 
 async function updateTimeline(match_id, actual) {
   const match_raw = await client.query(`SELECT * FROM matches WHERE id = $1`, [match_id])
   const match = match_raw.rows[0]
   let timeline_outer = match.timeline
   let timeline_inner = timeline_outer.timeline
-  let arr = timeline_inner[timeline_inner.length-1]
+  let arr = timeline_inner[timeline_inner.length - 1]
   arr.push(actual)
-  timeline_inner[timeline_inner.length-1] = arr
+  timeline_inner[timeline_inner.length - 1] = arr
   timeline_outer.timeline = timeline_inner
   await client.query(
     `UPDATE matches SET timeline = $1 WHERE id = $2`,
@@ -126,33 +125,33 @@ const addOrSubtractPoint = async (match_id, team_id, choice) => {
   }
 };
 
-// const finishSet = async (match_id, team_id) => {
-//   try {
-//     const match_raw = await client.query(`SELECT * FROM matches WHERE id = $1`, [match_id])
-//     const match = match_raw.rows[0]
-//     let actual_res = match.result
-//     let actual_resD = match.result_detailed.resD
-//     let actual_timeout = match.result_detailed.timeout
+const finishSet = async (match_id) => {
+  try {
+    const match_raw = await client.query(`SELECT * FROM matches WHERE id = $1`, [match_id])
+    const match = match_raw.rows[0]
+    let actual_res = match.result
+    let actual_detailed = match.result_detailed
+    let timeline_outer = match.timeline
 
-//     const updated = updateSets(actual_res, actual_resD, team_id, match.teama_id, match.teamb_id);
-//     match.result_detailed.resD = updated.resD
-//     console.log(updated.res)
-//     console.log(match.result_detailed)
-//     const res = await client.query(`
-//     UPDATE matches 
-//     SET result = $1,
-//     result_detailed = $2 
-//     WHERE id = $3 
-//     RETURNING *`,
-//       [updated.res, match.result_detailed, match_id]);
-//     return res.rows[0];
-//   } catch (error) {
-//     console.error('Error fetching matches:', error);
-//     return null;
-//   }
-// };
+    const updated = updateSets(actual_res, actual_detailed, timeline_outer);
+
+    const res = await client.query(`
+    UPDATE matches 
+    SET result = $1,
+    result_detailed = $2,
+    timeline = $3
+    WHERE id = $4 
+    RETURNING *`,
+      [updated.res, updated.detailed, updated.timeline_outer, match_id]);
+    return res.rows[0];
+  } catch (error) {
+    console.error('Error fetching matches:', error);
+    return null;
+  }
+};
 
 module.exports = {
   addOrSubtractPoint,
+  finishSet,
   isSetEnded
 }
