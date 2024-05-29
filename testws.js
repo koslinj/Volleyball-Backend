@@ -1,14 +1,14 @@
 const WebSocket = require('ws');
 
-const t = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjMsImlhdCI6MTcxNjk5MDAyMSwiZXhwIjoxNzE2OTkzNjIxfQ.1NNuZmpIDOTInMZSUNGsmZ8FPJyPYo7zPrhiIy2BdEc'
+const t = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjMsImlhdCI6MTcxNzAwMTEzNiwiZXhwIjoxNzE3MDAxMTY2fQ.90ndOB4JwEfVYoC3qy9V-t-axawKRTzmbJnFD8PRfUM'
 const ws = new WebSocket(`ws://localhost:3000/live?token=${t}`);
 
 ws.on('error', console.error);
 
 ws.on('open', function open() {
-  // setTimeout(() => {
-  //   ws.send(JSON.stringify({ type: 'test', data: "OD KLIENTA" }))
-  // },[2000])
+  //setTimeout(() => {
+  ws.send(JSON.stringify({ match_id: 1 }))
+  //}, [2000])
 });
 
 ws.on('message', function message(message) {
