@@ -1,6 +1,6 @@
 const WebSocket = require('ws');
 
-const ws = new WebSocket('ws://localhost:3000/live?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjMsImlhdCI6MTcxNjkyMzMyMCwiZXhwIjoxNzE2OTI2OTIwfQ.wfeEZxCzpViX9L2kBjwpORiPI8EZCgKUAHQCrfJGpLE');
+const ws = new WebSocket('wss://volleyball-backend.onrender.com/live?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjMsImlhdCI6MTcxNjk3NzQyNCwiZXhwIjoxNzE2OTgxMDI0fQ.SFb5ybyFi4ffNvtQZHGfyvVtQgEjxVuDzzf_dJ5Trzg');
 
 ws.on('error', console.error);
 
