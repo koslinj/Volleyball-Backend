@@ -1,6 +1,6 @@
 const WebSocket = require('ws');
 
-const t = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjMsImlhdCI6MTcxNzAwODA4OCwiZXhwIjoxNzE3MDExNjg4fQ.yTHYQAAirceTKfrB1AgDEe25cTXc1wwio86XixylgAk'
+const t = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjMsImlhdCI6MTcxNzAxMTg5NCwiZXhwIjoxNzE3MDE1NDk0fQ.KbtyErEoTYViG3DokGmXthI89biIgtrH1iB0U1mnz7I'
 const ws = new WebSocket(`ws://localhost:3000/live?token=${t}`);
 
 ws.on('error', console.error);
@@ -13,5 +13,6 @@ ws.on('open', function open() {
 
 ws.on('message', function message(message) {
   const data = JSON.parse(message);
-  console.log(data)
+  console.log(data.result_detailed)
+  console.log(data.timeline.timeline)
 });

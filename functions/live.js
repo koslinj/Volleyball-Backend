@@ -75,6 +75,21 @@ async function addPoints(resD, team_id, teama_id, teamb_id) {
 //   return { res, resD };
 // }
 
+async function updateTimeline(match_id, actual) {
+  const match_raw = await client.query(`SELECT * FROM matches WHERE id = $1`, [match_id])
+  const match = match_raw.rows[0]
+  let timeline_outer = match.timeline
+  let timeline_inner = timeline_outer.timeline
+  let arr = timeline_inner[timeline_inner.length-1]
+  arr.push(actual)
+  timeline_inner[timeline_inner.length-1] = arr
+  timeline_outer.timeline = timeline_inner
+  await client.query(
+    `UPDATE matches SET timeline = $1 WHERE id = $2`,
+    [timeline_outer, match_id]
+  );
+}
+
 const addOrSubtractPoint = async (match_id, team_id, choice) => {
   try {
     const match_raw = await client.query(`SELECT * FROM matches WHERE id = $1`, [match_id])
@@ -90,8 +105,10 @@ const addOrSubtractPoint = async (match_id, team_id, choice) => {
           [match_id]
         );
       }
+      await updateTimeline(match_id, updated.resD[updated.resD.length - 1])
     } else if (choice === 'subtract') {
       updated = await subtractPoints(actual_resD, team_id, match.teama_id, match.teamb_id);
+      await updateTimeline(match_id, updated.resD[updated.resD.length - 1])
     }
 
     match.result_detailed.resD = updated.resD
