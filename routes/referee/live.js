@@ -8,16 +8,15 @@ const { WebSocket } = require('ws');
 
 router.post('/', verifyTokenMiddleware, async (req, res) => {
   if (req.userRole === "referee") {
-    const { mess } = req.body;
-    const row = await addPoint(mess);
+    const { match_id, team_id } = req.body;
+    const row = await addPoint(match_id, team_id);
 
     const wss = getWss();
-    console.log(row);
     // Broadcast the new match to all connected WebSocket clients
     if (wss) {
       wss.clients.forEach(client => {
         if (client.readyState === WebSocket.OPEN) {
-          client.send(JSON.stringify({ type: 'point added', data: row }));
+          client.send(JSON.stringify(row));
         }
       });
     }
