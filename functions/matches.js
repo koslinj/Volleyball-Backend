@@ -1,5 +1,6 @@
 const moment = require('moment');
 const { client } = require('../db');
+const { createTimeRecord } = require('./times');
 
 const fetchAllMatches = async () => {
   try {
@@ -78,6 +79,8 @@ const createMatch = async (date, teama_id, teamb_id) => {
     VALUES 
     ($1, $2, $3, '0:0', '{"resD": ["0:0"], "timeout": ["0:0"]}', '{"timeline": [[]]}', $4) RETURNING *`,
       [formattedDate, teama_id, teamb_id, status]);
+
+    await createTimeRecord(formattedDate, 0, res.rows[0].id)
     return res.rows[0];
   } catch (error) {
     console.error('Error fetching matches:', error);
