@@ -1,6 +1,6 @@
 const WebSocket = require('ws');
 
-const t = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjMsImlhdCI6MTcxNzA3MDg2MCwiZXhwIjoxNzE3MDc0NDYwfQ.RkuwIQu3LrC59fY4VvpHgVjsZfwdekz7EvqK4c2lRYs'
+const t = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjMsImlhdCI6MTcxNzA3ODYxMiwiZXhwIjoxNzE3MDgyMjEyfQ.WRIFVRljGbcytLtqCOQBgdVMiCO4DYBZQ28QzkfDEWw'
 const ws = new WebSocket(`ws://localhost:3000/live?token=${t}`);
 
 ws.on('error', console.error);

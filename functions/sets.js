@@ -16,7 +16,7 @@ function changeGeneralResult(scores, res) {
 async function updateSets(res, detailed, timeline_outer) {
   let lastScore = detailed.resD[detailed.resD.length - 1];
   let scores = lastScore.split(':').map(Number);
-  if (await isSetEnded(scores) && !await isMatchEnded(res, scores)) {
+  if (await isSetEnded(res, scores) && !await isMatchEnded(res, scores)) {
     res = changeGeneralResult(scores, res)
     detailed.resD.push("0:0")
     detailed.timeout.push("0:0")

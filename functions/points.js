@@ -5,23 +5,42 @@ const { fetchMatchDetailsById } = require('./matches')
 async function isMatchEnded(res, scores) {
   const config = await getConfiguration()
   const n = config.sets_to_win
-  if (await isSetEnded(scores)) {
-    let general = res.split(':').map(Number);
-    if (general[0] === n - 1 && scores[0] > scores[1]) {
+  if (await isSetEnded(res, scores)) {
+    let res_arr = res.split(':').map(Number);
+    if (res_arr[0] === n - 1 && scores[0] > scores[1]) {
       return true
-    } else if (general[1] === n - 1 && scores[1] > scores[0]) {
+    } else if (res_arr[1] === n - 1 && scores[1] > scores[0]) {
       return true
     }
   }
   return false
 }
 
-async function isSetEnded(scores) {
-  const config = await getConfiguration()
-  const max = config.points_to_win_set
+function calculateIfEnd(scores, max) {
   if (Math.abs(scores[0] - scores[1]) >= 2 && (scores[0] >= max || scores[1] >= max)) {
     return true
   }
+  return false
+}
+
+async function isSetEnded(res, scores) {
+  const config = await getConfiguration()
+  const max = config.points_to_win_set
+  const max_tb = config.points_to_win_tie_break
+  const is_tb = config.is_tie_break
+  const n = config.sets_to_win
+
+  if (is_tb) {
+    let res_arr = res.split(':').map(Number)
+    if (res_arr[0] === n - 1 && res_arr[1] === n - 1) {
+      return calculateIfEnd(scores, max_tb)
+    } else {
+      return calculateIfEnd(scores, max)
+    }
+  } else {
+    return calculateIfEnd(scores, max)
+  }
+
   return false
 }
 
@@ -51,7 +70,7 @@ async function subtractPoints(res, resD, team_id, teama_id, teamb_id) {
   scores = subtractPointFromResD(scores, team_id, teama_id, teamb_id)
 
   resD[resD.length - 1] = scores.join(':')
-  let setEnded = await isSetEnded(scores)
+  let setEnded = await isSetEnded(res, scores)
   let matchEnded = await isMatchEnded(res, scores)
   if (matchEnded) setEnded = false
   return { resD, setEnded, matchEnded };
@@ -60,12 +79,12 @@ async function subtractPoints(res, resD, team_id, teama_id, teamb_id) {
 async function addPoints(res, resD, team_id, teama_id, teamb_id) {
   let lastScore = resD[resD.length - 1];
   let scores = lastScore.split(':').map(Number);
-  let setEnded = await isSetEnded(scores)
+  let setEnded = await isSetEnded(res, scores)
   if (!setEnded) {
     scores = addPointToResD(scores, team_id, teama_id, teamb_id)
   }
   resD[resD.length - 1] = scores.join(':')
-  setEnded = await isSetEnded(scores)
+  setEnded = await isSetEnded(res, scores)
   let matchEnded = await isMatchEnded(res, scores)
   if (matchEnded) setEnded = false
   return { resD, setEnded, matchEnded };
