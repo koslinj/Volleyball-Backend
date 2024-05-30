@@ -7,7 +7,9 @@ async function isMatchEnded(res, scores) {
   const n = config.sets_to_win
   if (await isSetEnded(scores)) {
     let general = res.split(':').map(Number);
-    if (general[0] === n - 1 || general[1] === n - 1) {
+    if (general[0] === n - 1 && scores[0] > scores[1]) {
+      return true
+    } else if (general[1] === n - 1 && scores[1] > scores[0]) {
       return true
     }
   }
@@ -51,7 +53,7 @@ async function subtractPoints(res, resD, team_id, teama_id, teamb_id) {
   resD[resD.length - 1] = scores.join(':')
   let setEnded = await isSetEnded(scores)
   let matchEnded = await isMatchEnded(res, scores)
-  if(matchEnded) setEnded = false
+  if (matchEnded) setEnded = false
   return { resD, setEnded, matchEnded };
 }
 
@@ -65,7 +67,7 @@ async function addPoints(res, resD, team_id, teama_id, teamb_id) {
   resD[resD.length - 1] = scores.join(':')
   setEnded = await isSetEnded(scores)
   let matchEnded = await isMatchEnded(res, scores)
-  if(matchEnded) setEnded = false
+  if (matchEnded) setEnded = false
   return { resD, setEnded, matchEnded };
 }
 
