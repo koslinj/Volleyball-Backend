@@ -2,6 +2,18 @@ const { getConfiguration } = require('./configuration')
 const { client } = require('../db');
 const { fetchMatchDetailsById } = require('./matches')
 
+async function isMatchEnded(res, scores) {
+  const config = await getConfiguration()
+  const n = config.sets_to_win
+  if (await isSetEnded(scores)) {
+    let general = res.split(':').map(Number);
+    if (general[0] === n - 1 || general[1] === n - 1) {
+      return true
+    }
+  }
+  return false
+}
+
 async function isSetEnded(scores) {
   const config = await getConfiguration()
   const max = config.points_to_win_set
@@ -31,17 +43,19 @@ function subtractPointFromResD(scores, team_id, teama_id, teamb_id) {
   return scores
 }
 
-async function subtractPoints(resD, team_id, teama_id, teamb_id) {
+async function subtractPoints(res, resD, team_id, teama_id, teamb_id) {
   let lastScore = resD[resD.length - 1];
   let scores = lastScore.split(':').map(Number);
   scores = subtractPointFromResD(scores, team_id, teama_id, teamb_id)
 
   resD[resD.length - 1] = scores.join(':')
   let setEnded = await isSetEnded(scores)
-  return { resD, setEnded };
+  let matchEnded = await isMatchEnded(res, scores)
+  if(matchEnded) setEnded = false
+  return { resD, setEnded, matchEnded };
 }
 
-async function addPoints(resD, team_id, teama_id, teamb_id) {
+async function addPoints(res, resD, team_id, teama_id, teamb_id) {
   let lastScore = resD[resD.length - 1];
   let scores = lastScore.split(':').map(Number);
   let setEnded = await isSetEnded(scores)
@@ -50,7 +64,9 @@ async function addPoints(resD, team_id, teama_id, teamb_id) {
   }
   resD[resD.length - 1] = scores.join(':')
   setEnded = await isSetEnded(scores)
-  return { resD, setEnded };
+  let matchEnded = await isMatchEnded(res, scores)
+  if(matchEnded) setEnded = false
+  return { resD, setEnded, matchEnded };
 }
 
 async function updateTimelinePoints(match_id, actual) {
@@ -76,7 +92,7 @@ const addOrSubtractPoint = async (match_id, team_id, choice) => {
 
     let updated
     if (choice === 'add') {
-      updated = await addPoints(actual_resD, team_id, match.teama_id, match.teamb_id);
+      updated = await addPoints(match.result, actual_resD, team_id, match.teama_id, match.teamb_id);
       if (updated.resD[0] === "1:0" || updated.resD[0] === "0:1") {
         await client.query(
           `UPDATE matches SET status='IN_PROGRESS' WHERE id = $1`,
@@ -85,7 +101,7 @@ const addOrSubtractPoint = async (match_id, team_id, choice) => {
       }
       await updateTimelinePoints(match_id, updated.resD[updated.resD.length - 1])
     } else if (choice === 'subtract') {
-      updated = await subtractPoints(actual_resD, team_id, match.teama_id, match.teamb_id);
+      updated = await subtractPoints(match.result, actual_resD, team_id, match.teama_id, match.teamb_id);
       await updateTimelinePoints(match_id, updated.resD[updated.resD.length - 1])
     }
 
@@ -97,7 +113,7 @@ const addOrSubtractPoint = async (match_id, team_id, choice) => {
       [match.result_detailed, match_id]);
 
     const final = await fetchMatchDetailsById(match_id)
-    return { ...final, setEnded: updated.setEnded }
+    return { ...final, setEnded: updated.setEnded, matchEnded: updated.matchEnded }
   } catch (error) {
     console.error('Error fetching matches:', error);
     return null;
@@ -106,5 +122,6 @@ const addOrSubtractPoint = async (match_id, team_id, choice) => {
 
 module.exports = {
   addOrSubtractPoint,
-  isSetEnded
+  isSetEnded,
+  isMatchEnded
 }

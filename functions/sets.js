@@ -1,6 +1,6 @@
 const { client } = require('../db');
 const { fetchMatchDetailsById } = require('./matches')
-const { isSetEnded } = require('./points')
+const { isSetEnded, isMatchEnded } = require('./points')
 const { getConfiguration } = require('./configuration')
 
 function changeGeneralResult(scores, res) {
@@ -16,7 +16,7 @@ function changeGeneralResult(scores, res) {
 async function updateSets(res, detailed, timeline_outer) {
   let lastScore = detailed.resD[detailed.resD.length - 1];
   let scores = lastScore.split(':').map(Number);
-  if (await isSetEnded(scores)) {
+  if (await isSetEnded(scores) && !await isMatchEnded(res, scores)) {
     res = changeGeneralResult(scores, res)
     detailed.resD.push("0:0")
     detailed.timeout.push("0:0")
@@ -50,18 +50,6 @@ const finishSet = async (match_id) => {
     return null;
   }
 };
-
-async function isMatchEnded(res, scores) {
-  const config = await getConfiguration()
-  const n = config.sets_to_win
-  if (await isSetEnded(scores)) {
-    let general = res.split(':').map(Number);
-    if (general[0] === n - 1 || general[1] === n - 1) {
-      return true
-    }
-  }
-  return false
-}
 
 const finishMatch = async (match_id) => {
   try {
