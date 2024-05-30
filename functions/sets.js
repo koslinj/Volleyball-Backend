@@ -1,4 +1,5 @@
 const { client } = require('../db');
+const { fetchMatchDetailsById } = require('./matches')
 
 function changeGeneralResult(scores, res) {
   let x = res.split(':').map(Number);

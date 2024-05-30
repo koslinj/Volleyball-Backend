@@ -1,4 +1,6 @@
 const { getConfiguration } = require('./configuration')
+const { client } = require('../db');
+const { fetchMatchDetailsById } = require('./matches')
 
 async function isSetEnded(scores) {
   const config = await getConfiguration()
