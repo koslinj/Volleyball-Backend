@@ -41,10 +41,10 @@ const finishSet = async (match_id) => {
     SET result = $1,
     result_detailed = $2,
     timeline = $3
-    WHERE id = $4 
-    RETURNING *`,
+    WHERE id = $4`,
       [updated.res, updated.detailed, updated.timeline_outer, match_id]);
-    return res.rows[0];
+    const final = await fetchMatchDetailsById(match_id)
+    return { ...final, setEnded: false, matchEnded: false }
   } catch (error) {
     console.error('Error fetching matches:', error);
     return null;

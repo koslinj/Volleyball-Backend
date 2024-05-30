@@ -14,7 +14,7 @@ async function updateTimelineTimeouts(match_id, team_id, teama_id, teamb_id) {
   } else if (team_id === teamb_id) {
     arr.push('tb')
   }
-  
+
   timeline_inner[timeline_inner.length - 1] = arr
   timeline_outer.timeline = timeline_inner
   await client.query(
@@ -37,13 +37,13 @@ function handleAddTimeout(team_id, teama_id, teamb_id, timeouts) {
 function updateTimeouts(detailed, team_id, teama_id, teamb_id) {
   let lastScore = detailed.timeout[detailed.timeout.length - 1];
   let timeouts = lastScore.split(':').map(Number);
-  timeouts = handleAddTimeout(team_id,teama_id,teamb_id,timeouts)
+  timeouts = handleAddTimeout(team_id, teama_id, teamb_id, timeouts)
 
   let newScore = timeouts.join(':')
   detailed.timeout[detailed.timeout.length - 1] = newScore
 
   let changed = false
-  if(lastScore !== newScore){
+  if (lastScore !== newScore) {
     changed = true
   }
 
@@ -57,17 +57,17 @@ const requestTimeout = async (match_id, team_id) => {
     let actual_detailed = match.result_detailed
 
     const updated = updateTimeouts(actual_detailed, team_id, match.teama_id, match.teamb_id);
-    if(updated.changed){
+    if (updated.changed) {
       await updateTimelineTimeouts(match_id, team_id, match.teama_id, match.teamb_id)
     }
 
     const res = await client.query(`
     UPDATE matches 
     SET result_detailed = $1
-    WHERE id = $2
-    RETURNING *`,
+    WHERE id = $2`,
       [updated.detailed, match_id]);
-    return res.rows[0];
+    const final = await fetchMatchDetailsById(match_id)
+    return { ...final, setEnded: false, matchEnded: false }
   } catch (error) {
     console.error('Error fetching matches:', error);
     return null;
