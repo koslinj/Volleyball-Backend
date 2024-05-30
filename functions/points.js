@@ -1,6 +1,13 @@
-const { client } = require('../db');
 const { getConfiguration } = require('./configuration')
-const { fetchMatchDetailsById } = require('./matches')
+
+async function isSetEnded(scores) {
+  const config = await getConfiguration()
+  const max = config.points_to_win_set
+  if (Math.abs(scores[0] - scores[1]) >= 2 && (scores[0] >= max || scores[1] >= max)) {
+    return true
+  }
+  return false
+}
 
 function addPointToResD(scores, team_id, teama_id, teamb_id) {
   if (team_id === teama_id) {
@@ -20,15 +27,6 @@ function subtractPointFromResD(scores, team_id, teama_id, teamb_id) {
     if (scores[1] < 0) scores[1] = 0
   }
   return scores
-}
-
-async function isSetEnded(scores) {
-  const config = await getConfiguration()
-  const max = config.points_to_win_set
-  if (Math.abs(scores[0] - scores[1]) >= 2 && (scores[0] >= max || scores[1] >= max)) {
-    return true
-  }
-  return false
 }
 
 async function subtractPoints(resD, team_id, teama_id, teamb_id) {
@@ -53,28 +51,7 @@ async function addPoints(resD, team_id, teama_id, teamb_id) {
   return { resD, setEnded };
 }
 
-function changeGeneralResult(scores, res) {
-  let x = res.split(':').map(Number);
-  if (scores[0] > scores[1]) {
-    x[0]++
-  } else {
-    x[1]++
-  }
-  return x.join(':')
-}
-
-function updateSets(res, detailed, timeline_outer) {
-  let lastScore = detailed.resD[detailed.resD.length - 1];
-  let scores = lastScore.split(':').map(Number);
-  res = changeGeneralResult(scores, res)
-  detailed.resD.push("0:0")
-  detailed.timeout.push("0:0")
-  timeline_outer.timeline.push([])
-
-  return { res, detailed, timeline_outer };
-}
-
-async function updateTimeline(match_id, actual) {
+async function updateTimelinePoints(match_id, actual) {
   const match_raw = await client.query(`SELECT * FROM matches WHERE id = $1`, [match_id])
   const match = match_raw.rows[0]
   let timeline_outer = match.timeline
@@ -104,10 +81,10 @@ const addOrSubtractPoint = async (match_id, team_id, choice) => {
           [match_id]
         );
       }
-      await updateTimeline(match_id, updated.resD[updated.resD.length - 1])
+      await updateTimelinePoints(match_id, updated.resD[updated.resD.length - 1])
     } else if (choice === 'subtract') {
       updated = await subtractPoints(actual_resD, team_id, match.teama_id, match.teamb_id);
-      await updateTimeline(match_id, updated.resD[updated.resD.length - 1])
+      await updateTimelinePoints(match_id, updated.resD[updated.resD.length - 1])
     }
 
     match.result_detailed.resD = updated.resD
@@ -125,33 +102,7 @@ const addOrSubtractPoint = async (match_id, team_id, choice) => {
   }
 };
 
-const finishSet = async (match_id) => {
-  try {
-    const match_raw = await client.query(`SELECT * FROM matches WHERE id = $1`, [match_id])
-    const match = match_raw.rows[0]
-    let actual_res = match.result
-    let actual_detailed = match.result_detailed
-    let timeline_outer = match.timeline
-
-    const updated = updateSets(actual_res, actual_detailed, timeline_outer);
-
-    const res = await client.query(`
-    UPDATE matches 
-    SET result = $1,
-    result_detailed = $2,
-    timeline = $3
-    WHERE id = $4 
-    RETURNING *`,
-      [updated.res, updated.detailed, updated.timeline_outer, match_id]);
-    return res.rows[0];
-  } catch (error) {
-    console.error('Error fetching matches:', error);
-    return null;
-  }
-};
-
 module.exports = {
   addOrSubtractPoint,
-  finishSet,
   isSetEnded
 }

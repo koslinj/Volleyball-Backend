@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const { addOrSubtractPoint, finishSet } = require('../../functions/live');
+const { finishSet } = require('../../functions/sets');
+const { addOrSubtractPoint } = require('../../functions/points');
 const { verifyTokenMiddleware, verifyToken } = require('../../middleware/authMiddleware')
 // Import the WebSocket server instance
 const { getWss } = require('../../websocket/liveHandler');
