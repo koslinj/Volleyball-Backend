@@ -110,6 +110,8 @@ const addOrSubtractPoint = async (match_id, team_id, choice) => {
     const match_raw = await client.query(`SELECT * FROM matches WHERE id = $1`, [match_id])
     const match = match_raw.rows[0]
     let actual_resD = match.result_detailed.resD
+    let lastScore = actual_resD[actual_resD.length - 1];
+    let scores = lastScore.split(':').map(Number);
 
     let updated
     if (choice === 'add') {
@@ -120,7 +122,10 @@ const addOrSubtractPoint = async (match_id, team_id, choice) => {
           [match_id]
         );
       }
-      await updateTimelinePoints(match_id, updated.resD[updated.resD.length - 1])
+      let setEnded = await isSetEnded(match.result, scores)
+      if (!setEnded) {
+        await updateTimelinePoints(match_id, updated.resD[updated.resD.length - 1])
+      }
     } else if (choice === 'subtract') {
       updated = await subtractPoints(match.result, actual_resD, team_id, match.teama_id, match.teamb_id);
       await updateTimelinePoints(match_id, updated.resD[updated.resD.length - 1])
