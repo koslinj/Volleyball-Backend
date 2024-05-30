@@ -4,21 +4,13 @@ const { fetchAllTeams, createTeam, editTeam, deleteTeam, fetchTeam } = require('
 const { verifyTokenMiddleware } = require('../../middleware/authMiddleware')
 
 router.get('/', verifyTokenMiddleware, async (req, res) => {
-  if (req.userRole === "referee") {
-    const rows = await fetchAllTeams();
-    res.send(rows)
-  } else {
-    res.status(403).json({ message: 'Forbidden' });
-  }
+  const rows = await fetchAllTeams();
+  res.send(rows)
 });
 
 router.get('/:id', verifyTokenMiddleware, async (req, res) => {
-  if (req.userRole === "referee") {
-    const row = await fetchTeam(req.params.id);
-    res.send(row)
-  } else {
-    res.status(403).json({ message: 'Forbidden' });
-  }
+  const row = await fetchTeam(req.params.id);
+  res.send(row)
 });
 
 router.post('/', verifyTokenMiddleware, async (req, res) => {
