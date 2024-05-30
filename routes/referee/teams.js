@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { fetchAllTeams, createTeam, editTeam, deleteTeam } = require('../../functions/teams');
+const { fetchAllTeams, createTeam, editTeam, deleteTeam, fetchTeam } = require('../../functions/teams');
 const { verifyTokenMiddleware } = require('../../middleware/authMiddleware')
 
 router.get('/', verifyTokenMiddleware, async (req, res) => {
@@ -14,7 +14,7 @@ router.get('/', verifyTokenMiddleware, async (req, res) => {
 
 router.get('/:id', verifyTokenMiddleware, async (req, res) => {
   if (req.userRole === "referee") {
-    const row = await fetchAllTeams(req.params.id);
+    const row = await fetchTeam(req.params.id);
     res.send(row)
   } else {
     res.status(403).json({ message: 'Forbidden' });
