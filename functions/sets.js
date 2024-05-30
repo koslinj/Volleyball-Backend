@@ -1,5 +1,6 @@
 const { client } = require('../db');
 const { fetchMatchDetailsById } = require('./matches')
+const { isSetEnded } = require('./points')
 
 function changeGeneralResult(scores, res) {
   let x = res.split(':').map(Number);
@@ -11,13 +12,15 @@ function changeGeneralResult(scores, res) {
   return x.join(':')
 }
 
-function updateSets(res, detailed, timeline_outer) {
+async function updateSets(res, detailed, timeline_outer) {
   let lastScore = detailed.resD[detailed.resD.length - 1];
   let scores = lastScore.split(':').map(Number);
-  res = changeGeneralResult(scores, res)
-  detailed.resD.push("0:0")
-  detailed.timeout.push("0:0")
-  timeline_outer.timeline.push([])
+  if (await isSetEnded(scores)) {
+    res = changeGeneralResult(scores, res)
+    detailed.resD.push("0:0")
+    detailed.timeout.push("0:0")
+    timeline_outer.timeline.push([])
+  }
 
   return { res, detailed, timeline_outer };
 }
@@ -30,7 +33,7 @@ const finishSet = async (match_id) => {
     let actual_detailed = match.result_detailed
     let timeline_outer = match.timeline
 
-    const updated = updateSets(actual_res, actual_detailed, timeline_outer);
+    const updated = await updateSets(actual_res, actual_detailed, timeline_outer);
 
     const res = await client.query(`
     UPDATE matches 
