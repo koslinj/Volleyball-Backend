@@ -36,12 +36,10 @@ function handleAddTimeout(team_id, teama_id, teamb_id, timeouts) {
 
 function updateTimeouts(detailed, team_id, teama_id, teamb_id) {
   let lastScore = detailed.timeout[detailed.timeout.length - 1];
-  console.log(lastScore)
   let timeouts = lastScore.split(':').map(Number);
   timeouts = handleAddTimeout(team_id,teama_id,teamb_id,timeouts)
 
   let newScore = timeouts.join(':')
-  console.log(newScore)
   detailed.timeout[detailed.timeout.length - 1] = newScore
 
   let changed = false
