@@ -76,7 +76,7 @@ const createMatch = async (date, teama_id, teamb_id) => {
     INSERT INTO matches 
     (match_date, teamA_id, teamB_id, result, result_detailed, timeline, status) 
     VALUES 
-    ($1, $2, $3, '0:0', '{"resD": [], "timeout": []}', '{"timeline": []}', $4) RETURNING *`,
+    ($1, $2, $3, '0:0', '{"resD": ["0:0"], "timeout": ["0:0"]}', '{"timeline": [[]]}', $4) RETURNING *`,
       [formattedDate, teama_id, teamb_id, status]);
     return res.rows[0];
   } catch (error) {
