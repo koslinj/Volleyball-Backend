@@ -1,6 +1,8 @@
+const moment = require('moment');
 const { client } = require('../db');
 const { fetchMatchDetailsById } = require('./matches')
 const { isSetEnded, isMatchEnded } = require('./points')
+const { createTimeRecord, updateTimeRecord, countSetIndexFromRes } = require('./times')
 const { getConfiguration } = require('./configuration')
 
 function changeGeneralResult(scores, res) {
@@ -28,6 +30,7 @@ async function updateSets(res, detailed, timeline_outer) {
 
 const finishSet = async (match_id) => {
   try {
+    const formattedDate = moment().format('YYYY-MM-DD HH:mm:ss')
     const match_raw = await client.query(`SELECT * FROM matches WHERE id = $1`, [match_id])
     const match = match_raw.rows[0]
     let actual_res = match.result
@@ -35,6 +38,12 @@ const finishSet = async (match_id) => {
     let timeline_outer = match.timeline
 
     const updated = await updateSets(actual_res, actual_detailed, timeline_outer);
+    let lastScore = actual_detailed.resD[actual_detailed.resD.length - 1];
+    let scores = lastScore.split(':').map(Number);
+    if (await isSetEnded(actual_res, scores) && !await isMatchEnded(actual_res, scores)) {
+      await updateTimeRecord(formattedDate, countSetIndexFromRes(actual_res), match_id)
+      await createTimeRecord(formattedDate, countSetIndexFromRes(updated.res), match_id)
+    }
 
     const res = await client.query(`
     UPDATE matches 
@@ -53,6 +62,7 @@ const finishSet = async (match_id) => {
 
 const finishMatch = async (match_id) => {
   try {
+    const formattedDate = moment().format('YYYY-MM-DD HH:mm:ss')
     const match_raw = await client.query(`SELECT * FROM matches WHERE id = $1`, [match_id])
     const match = match_raw.rows[0]
     let actual_res = match.result
@@ -64,6 +74,7 @@ const finishMatch = async (match_id) => {
     let matchEnded = await isMatchEnded(actual_res, scores)
 
     if (matchEnded) {
+      await updateTimeRecord(formattedDate, countSetIndexFromRes(actual_res), match_id)
       actual_res = changeGeneralResult(scores, actual_res)
       await client.query(`
       UPDATE matches 
