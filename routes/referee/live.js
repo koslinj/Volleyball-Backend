@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { finishSet } = require('../../functions/sets');
+const { finishSet, finishMatch } = require('../../functions/sets');
 const { addOrSubtractPoint } = require('../../functions/points');
 const { requestTimeout } = require('../../functions/timeouts');
 const { verifyTokenMiddleware, verifyToken } = require('../../middleware/authMiddleware')
@@ -79,6 +79,18 @@ router.post('/endset', verifyTokenMiddleware, async (req, res) => {
   if (req.userRole === "referee") {
     const { match_id, team_id } = req.body;
     const row = await finishSet(match_id);
+
+    broadcastToAll(row)
+    res.send(row);
+  } else {
+    res.status(403).json({ message: 'Forbidden' });
+  }
+});
+
+router.post('/endmatch', verifyTokenMiddleware, async (req, res) => {
+  if (req.userRole === "referee") {
+    const { match_id, team_id } = req.body;
+    const row = await finishMatch(match_id);
 
     broadcastToAll(row)
     res.send(row);

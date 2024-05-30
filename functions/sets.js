@@ -1,6 +1,7 @@
 const { client } = require('../db');
 const { fetchMatchDetailsById } = require('./matches')
 const { isSetEnded } = require('./points')
+const { getConfiguration } = require('./configuration')
 
 function changeGeneralResult(scores, res) {
   let x = res.split(':').map(Number);
@@ -50,6 +51,48 @@ const finishSet = async (match_id) => {
   }
 };
 
+async function isMatchEnded(res, scores) {
+  const config = await getConfiguration()
+  const n = config.sets_to_win
+  if (await isSetEnded(scores)) {
+    let general = res.split(':').map(Number);
+    if (general[0] === n - 1 || general[1] === n - 1) {
+      return true
+    }
+  }
+  return false
+}
+
+const finishMatch = async (match_id) => {
+  try {
+    const match_raw = await client.query(`SELECT * FROM matches WHERE id = $1`, [match_id])
+    const match = match_raw.rows[0]
+    let actual_res = match.result
+    let actual_detailed = match.result_detailed
+    let resD = actual_detailed.resD
+
+    let lastScore = resD[resD.length - 1];
+    let scores = lastScore.split(':').map(Number);
+    let matchEnded = await isMatchEnded(actual_res, scores)
+
+    if (matchEnded) {
+      actual_res = changeGeneralResult(scores, actual_res)
+      await client.query(`
+      UPDATE matches 
+      SET status = $1,
+      result = $2
+      WHERE id = $3 `,
+        ['FINISHED', actual_res, match_id]);
+    }
+    const final = await fetchMatchDetailsById(match_id)
+    return { ...final, setEnded: false, matchEnded: false }
+  } catch (error) {
+    console.error('Error fetching matches:', error);
+    return null;
+  }
+};
+
 module.exports = {
-  finishSet
+  finishSet,
+  finishMatch
 }
