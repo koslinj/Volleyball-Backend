@@ -12,6 +12,15 @@ router.get('/', verifyTokenMiddleware, async (req, res) => {
   }
 });
 
+router.get('/:id', verifyTokenMiddleware, async (req, res) => {
+  if (req.userRole === "referee") {
+    const row = await fetchAllTeams(req.params.id);
+    res.send(row)
+  } else {
+    res.status(403).json({ message: 'Forbidden' });
+  }
+});
+
 router.post('/', verifyTokenMiddleware, async (req, res) => {
   if (req.userRole === "referee") {
     const { name, players } = req.body

@@ -10,6 +10,16 @@ const fetchAllTeams = async () => {
   }
 };
 
+const fetchTeam = async (id) => {
+  try {
+    const res = await client.query(`SELECT * FROM teams WHERE id = $1`, [id]);
+    return res.rows[0];
+  } catch (error) {
+    console.error('Error fetching matches:', error);
+    return null;
+  }
+};
+
 const createTeam = async (name, players) => {
   try {
     const playersJSON = { players: players }
@@ -54,6 +64,7 @@ const deleteTeam = async (id) => {
 
 module.exports = {
   fetchAllTeams,
+  fetchTeam,
   createTeam,
   editTeam,
   deleteTeam
