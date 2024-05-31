@@ -29,7 +29,19 @@ const updateTimeRecord = async (formattedDate, index, id) => {
   }
 };
 
+const fetchTimeRecords = async (id) => {
+  try {
+    const res = await client.query(`
+    SELECT * FROM times
+    WHERE match_id = $1`, [id]);
+    return res.rows
+  } catch (error) {
+    throw error;
+  }
+};
+
 module.exports = {
+  fetchTimeRecords,
   createTimeRecord,
   updateTimeRecord,
   countSetIndexFromRes
