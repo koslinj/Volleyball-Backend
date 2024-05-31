@@ -64,7 +64,8 @@ const finishSet = async (match_id) => {
 
 const finishMatch = async (match_id) => {
   try {
-    const formattedDate = moment().format('YYYY-MM-DD HH:mm:ss')
+    const timeZone = 'Europe/Warsaw';
+    const formattedDate = moment().tz(timeZone).format('YYYY-MM-DD HH:mm:ss z');
     const match_raw = await client.query(`SELECT * FROM matches WHERE id = $1`, [match_id])
     const match = match_raw.rows[0]
     let actual_res = match.result

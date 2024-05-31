@@ -1,4 +1,4 @@
-const moment = require('moment');
+const moment = require('moment-timezone');
 const { client } = require('../db');
 const { createTimeRecord } = require('./times');
 
@@ -71,7 +71,8 @@ const deleteMatch = async (id) => {
 
 const createMatch = async (date, teama_id, teamb_id) => {
   try {
-    const formattedDate = date ? date : moment().format('YYYY-MM-DD HH:mm:ss')
+    const timeZone = 'Europe/Warsaw';
+    const formattedDate = moment().tz(timeZone).format('YYYY-MM-DD HH:mm:ss z');
     const status = date ? 'PLANNED' : 'IN_PROGRESS'
     const res = await client.query(`
     INSERT INTO matches 
