@@ -1,6 +1,7 @@
 const { getConfiguration } = require('./configuration')
 const { client } = require('../db');
 const { fetchMatchDetailsById } = require('./matches')
+const { fetchTimeRecords } = require('./times')
 
 async function isMatchEnded(res, scores) {
   const config = await getConfiguration()
@@ -143,7 +144,8 @@ const addOrSubtractPoint = async (match_id, team_id, choice) => {
       [match.result_detailed, match_id]);
 
     const final = await fetchMatchDetailsById(match_id)
-    return { ...final, setEnded: updated.setEnded, matchEnded: updated.matchEnded }
+    const times = await fetchTimeRecords(match_id)
+    return { ...final, setEnded: updated.setEnded, matchEnded: updated.matchEnded, times }
   } catch (error) {
     console.error('Error fetching matches:', error);
     return null;

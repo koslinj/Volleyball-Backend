@@ -1,6 +1,7 @@
 const { getConfiguration } = require('./configuration')
 const { client } = require('../db');
 const { fetchMatchDetailsById } = require('./matches')
+const { fetchTimeRecords } = require('./times')
 
 async function updateTimelineTimeouts(match_id, team_id, teama_id, teamb_id) {
   const match_raw = await client.query(`SELECT * FROM matches WHERE id = $1`, [match_id])
@@ -71,7 +72,8 @@ const requestTimeout = async (match_id, team_id) => {
     WHERE id = $2`,
       [updated.detailed, match_id]);
     const final = await fetchMatchDetailsById(match_id)
-    return { ...final, setEnded: false, matchEnded: false }
+    const times = await fetchTimeRecords(match_id)
+    return { ...final, setEnded: false, matchEnded: false, times }
   } catch (error) {
     console.error('Error fetching matches:', error);
     return null;

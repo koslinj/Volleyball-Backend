@@ -2,7 +2,7 @@ const moment = require('moment');
 const { client } = require('../db');
 const { fetchMatchDetailsById } = require('./matches')
 const { isSetEnded, isMatchEnded } = require('./points')
-const { createTimeRecord, updateTimeRecord, countSetIndexFromRes } = require('./times')
+const { fetchTimeRecords, createTimeRecord, updateTimeRecord, countSetIndexFromRes } = require('./times')
 const { getConfiguration } = require('./configuration')
 
 function changeGeneralResult(scores, res) {
@@ -53,7 +53,8 @@ const finishSet = async (match_id) => {
     WHERE id = $4`,
       [updated.res, updated.detailed, updated.timeline_outer, match_id]);
     const final = await fetchMatchDetailsById(match_id)
-    return { ...final, setEnded: false, matchEnded: false }
+    const times = await fetchTimeRecords(match_id)
+    return { ...final, setEnded: false, matchEnded: false, times }
   } catch (error) {
     console.error('Error fetching matches:', error);
     return null;
@@ -84,7 +85,8 @@ const finishMatch = async (match_id) => {
         ['FINISHED', actual_res, match_id]);
     }
     const final = await fetchMatchDetailsById(match_id)
-    return { ...final, setEnded: false, matchEnded: false }
+    const times = await fetchTimeRecords(match_id)
+    return { ...final, setEnded: false, matchEnded: false, times }
   } catch (error) {
     console.error('Error fetching matches:', error);
     return null;
