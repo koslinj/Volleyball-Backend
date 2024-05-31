@@ -30,7 +30,7 @@ async function updateSets(res, detailed, timeline_outer) {
 
 const finishSet = async (match_id) => {
   try {
-    const timeZone = 'Europe/Poland';
+    const timeZone = 'Europe/Warsaw';
     const formattedDate = moment().tz(timeZone).format('YYYY-MM-DD HH:mm:ss z');
     const match_raw = await client.query(`SELECT * FROM matches WHERE id = $1`, [match_id])
     const match = match_raw.rows[0]
