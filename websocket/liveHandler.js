@@ -22,7 +22,7 @@ const liveHandler = (server) => {
       const matchEnded = await isMatchEnded(match.result, last.split(':').map(Number))
       const times = await fetchTimeRecords(data.match_id)
       if (matchEnded) setEnded = false
-      ws.send(JSON.stringify({ ...match, setEnded, matchEnded, ...times }))
+      ws.send(JSON.stringify({ ...match, setEnded, matchEnded, times }))
     });
 
     ws.on('close', () => {
