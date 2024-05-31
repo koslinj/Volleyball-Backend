@@ -36,10 +36,10 @@ const finishSet = async (match_id) => {
     let actual_res = match.result
     let actual_detailed = match.result_detailed
     let timeline_outer = match.timeline
-
-    const updated = await updateSets(actual_res, actual_detailed, timeline_outer);
     let lastScore = actual_detailed.resD[actual_detailed.resD.length - 1];
     let scores = lastScore.split(':').map(Number);
+
+    const updated = await updateSets(actual_res, actual_detailed, timeline_outer);
     if (await isSetEnded(actual_res, scores) && !await isMatchEnded(actual_res, scores)) {
       await updateTimeRecord(formattedDate, countSetIndexFromRes(actual_res), match_id)
       await createTimeRecord(formattedDate, countSetIndexFromRes(updated.res), match_id)
