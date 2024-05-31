@@ -109,6 +109,10 @@ const addOrSubtractPoint = async (match_id, team_id, choice) => {
   try {
     const match_raw = await client.query(`SELECT * FROM matches WHERE id = $1`, [match_id])
     const match = match_raw.rows[0]
+    if (match.status === "FINISHED") {
+      const no_change = await fetchMatchDetailsById(match_id)
+      return { ...no_change, setEnded: false, matchEnded: false }
+    }
     let actual_resD = match.result_detailed.resD
     let lastScore = actual_resD[actual_resD.length - 1];
     let scores = lastScore.split(':').map(Number);

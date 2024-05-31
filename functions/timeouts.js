@@ -54,6 +54,10 @@ const requestTimeout = async (match_id, team_id) => {
   try {
     const match_raw = await client.query(`SELECT * FROM matches WHERE id = $1`, [match_id])
     const match = match_raw.rows[0]
+    if (match.status === "FINISHED") {
+      const no_change = await fetchMatchDetailsById(match_id)
+      return { ...no_change, setEnded: false, matchEnded: false }
+    }
     let actual_detailed = match.result_detailed
 
     const updated = updateTimeouts(actual_detailed, team_id, match.teama_id, match.teamb_id);
