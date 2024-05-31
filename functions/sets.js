@@ -1,4 +1,4 @@
-const moment = require('moment');
+const moment = require('moment-timezone');
 const { client } = require('../db');
 const { fetchMatchDetailsById } = require('./matches')
 const { isSetEnded, isMatchEnded } = require('./points')
@@ -30,7 +30,8 @@ async function updateSets(res, detailed, timeline_outer) {
 
 const finishSet = async (match_id) => {
   try {
-    const formattedDate = moment().format('YYYY-MM-DD HH:mm:ss')
+    const timeZone = 'Europe/Poland';
+    const formattedDate = moment().tz(timeZone).format('YYYY-MM-DD HH:mm:ss z');
     const match_raw = await client.query(`SELECT * FROM matches WHERE id = $1`, [match_id])
     const match = match_raw.rows[0]
     let actual_res = match.result
