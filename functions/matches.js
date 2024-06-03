@@ -73,7 +73,7 @@ const deleteMatch = async (id) => {
 const createMatch = async (date, teama_id, teamb_id) => {
   try {
     const timeZone = 'Europe/Warsaw';
-    const formattedDate = moment().tz(timeZone).format('YYYY-MM-DD HH:mm:ss z');
+    const formattedDate = date ? date : moment().tz(timeZone).format('YYYY-MM-DD HH:mm:ss z');
     const status = date ? 'PLANNED' : 'IN_PROGRESS'
     const res = await client.query(`
     INSERT INTO matches 
