@@ -55,7 +55,7 @@ const finishSet = async (match_id) => {
       [updated.res, updated.detailed, updated.timeline_outer, match_id]);
     const final = await fetchMatchDetailsById(match_id)
     const times = await fetchTimeRecords(match_id)
-    return { ...final, setEnded: false, matchEnded: false, times, changeSides: true }
+    return { ...final, setEnded: false, matchEnded: false, times }
   } catch (error) {
     console.error('Error fetching matches:', error);
     return null;
